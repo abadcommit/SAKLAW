@@ -1,6 +1,8 @@
-# SAKLAW
+# SAKLAW: SPATIAL ANALYSIS OF KEY LOCATIONS FOR ACCESSIBLE WELLNESS FACILITIES
 
-## Frontend
+## Executive Summary
+
+Unequal access to healthcare and overcrowding in healthcare facilities remain persistent challenges in the Philippines. Existing facility locations may not adequately address the needs of surrounding communities, while healthcare planning tools may lack localized information on facility capacity, population distribution, and geographic accessibility. These gaps highlight the need for a data-driven approach to healthcare infrastructure planning that can identify underserved communities and support more equitable access to healthcare services. To address this need, our team proposes SAKLAW (Spatial Analysis of Key Locations for Accessible Wellness Facilities), a GIS-based decision-support system designed to assess healthcare accessibility and support preliminary site identification for new public healthcare facilities. Using publicly available data, SAKLAW analyzes estimated road-network travel times between communities and existing healthcare facilities, population distribution, and available information on healthcare service capacity to identify potential gaps in the existing healthcare network. Beyond assessing current accessibility, SAKLAW identifies and evaluates candidate locations for additional healthcare facilities based on their potential to improve population coverage, reduce travel times, and address underserved areas. Through configurable scenarios, government planning officials can compare alternative facility locations, examine trade-offs between accessibility and community needs, and assess how different planning priorities affect healthcare coverage. By providing localized spatial analysis and transparent, data-driven comparisons, SAKLAW aims to support more informed preliminary site identification and healthcare infrastructure planning, particularly for communities with limited access to healthcare services.
 
 ### Naming Conventions
 **PascalCase** when naming components and classes\
