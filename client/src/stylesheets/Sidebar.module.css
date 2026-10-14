@@ -1,0 +1,15 @@
+.sidebar {
+  background-color: hsl(222, 47%, 11%);
+  border-radius: 0px 32px 32px 0px;
+  height: 100dvh;
+  width: 14dvw;
+  padding: 1rem;
+}
+
+.head-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem;
+  color: white;
+}
