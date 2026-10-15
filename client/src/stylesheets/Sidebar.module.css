@@ -1,5 +1,5 @@
 .sidebar {
-  background-color: hsl(222, 47%, 11%);
+  background-color: var(--primary);
   border-radius: 0px 32px 32px 0px;
   height: 100dvh;
   width: 14dvw;
