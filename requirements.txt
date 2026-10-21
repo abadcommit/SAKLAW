@@ -2,8 +2,7 @@ rasterio
 pandas
 numpy
 geopandas
-numpy
 pyroj
 scipy
 shapely
-pandas
+networkx

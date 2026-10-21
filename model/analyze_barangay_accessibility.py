@@ -502,7 +502,7 @@ def build_baseline_model(params: ModelParams = ModelParams(),
 
 # ============================================================ CLI
 def main():
-    model = build_baseline_model(use_cache=False)
+    model = build_baseline_model(use_cache=True)
     result, overall = save_baseline_outputs(model)
     print("Finished.")
     print(f"Barangay CSV: {cfg.OUTPUT_CSV}")
