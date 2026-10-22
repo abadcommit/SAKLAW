@@ -6,3 +6,6 @@ pyroj
 scipy
 shapely
 networkx
+fastapi
+uvicorn[standard]
+pydantic
