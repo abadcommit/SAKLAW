@@ -2,6 +2,7 @@ import { useState } from 'react'
 import styles from '../stylesheets/Popup.module.css'
 import { Minimize, Maximize } from 'lucide-react'
 import { Draggable } from '../hooks/useDraggable';
+import { useGetCandidates } from '../hooks/useGetCandidates';
 
 interface Param {
   name: string;
@@ -63,11 +64,12 @@ export default function Popup() {
     return (<Draggable><div className={styles['popup-wrapper-open']}>
       <PopupHeader togglePopup={togglePopup} />
       <ParamSelect params={params} />
+      <button className={styles['candidate-button']}>Get Candidates</button>
     </div></Draggable>)
   }
 
   return (<div className={styles['popup-wrapper-closed']}
     onClick={togglePopup}>
-    <Maximize />
+      <Maximize />
   </div>)
 }
