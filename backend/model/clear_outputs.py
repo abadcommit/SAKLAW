@@ -3,7 +3,7 @@
 import shutil
 from pathlib import Path
 
-import config as cfg
+import backend.model.config as cfg
 
 
 def clear_outputs():

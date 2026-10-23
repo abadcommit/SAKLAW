@@ -13,9 +13,9 @@ from pyproj import Transformer
 from scipy.spatial import cKDTree
 from scipy.sparse.csgraph import connected_components
 
-import config as cfg
-from candidate_evaluation import build_time_matrix
-from config import CandidateParams
+import backend.model.config as cfg
+from backend.model.candidate_evaluation import build_time_matrix
+from backend.model.config import CandidateParams
 
 REASONS = ("snap_distance_exceeded", "duplicate_node", "disconnected_node",
            "existing_hospital_node", "too_close_to_hospital", "outside_priority_area")

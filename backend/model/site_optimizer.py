@@ -28,11 +28,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-import config as cfg
-from candidate_evaluation import (CandidateFieldStore, CellIndex, Impact, ObjectiveReference,
+import backend.model.config as cfg
+from backend.model.candidate_evaluation import (CandidateFieldStore, CellIndex, Impact, ObjectiveReference,
                                   ScenarioState, build_time_matrix, score_impact)
-from candidate_generation import generate_candidates, write_candidate_geojson
-from config import CandidateParams, OptimizerParams
+from backend.model.candidate_generation import generate_candidates, write_candidate_geojson
+from backend.model.config import CandidateParams, OptimizerParams
 
 
 @dataclass
@@ -240,7 +240,7 @@ def find_alternatives(make_state, store: CandidateFieldStore, candidates: pd.Dat
 def _full_recompute(state: ScenarioState) -> dict:
     """Independent recomputation of final metrics from the per-cell times, to
     cross-check the incremental aggregates."""
-    from analyze_barangay import calculate_metrics
+    from backend.model.analyze_barangay import calculate_metrics
     m = calculate_metrics(state.cells, state.current, state.params)
     covered = float(m["covered_population"].sum())
     ref = np.isfinite(state.baseline)
@@ -283,7 +283,7 @@ def write_outputs(model, results, candidates: pd.DataFrame, cparams: CandidatePa
                   requested_alternatives: int = 1, alt_warnings=None):
     """`results`: ranked list of OptimizationResult (rank 1 first), or one result."""
     import geopandas as gpd
-    from analyze_barangay import (build_overall, build_result_table, calculate_metrics,
+    from backend.model.analyze_barangay import (build_overall, build_result_table, calculate_metrics,
                        write_accessibility_outputs)
     results = [results] if isinstance(results, OptimizationResult) else list(results)
     outdir = Path(outdir)
@@ -430,7 +430,7 @@ def recommend_sites(k: int, n_alternatives: int = 1, params=cfg.ModelParams(),
                     use_cache=True, verbose=True, write=True, model=None):
     """End-to-end: baseline -> candidates -> greedy selection (+alternatives) -> outputs.
     Returns (ranked results, candidates, summary)."""
-    from analyze_barangay import build_baseline_model
+    from backend.model.analyze_barangay import build_baseline_model
     t0 = time.time()
     model = model or build_baseline_model(params, use_cache=use_cache)
     t_model = time.time() - t0

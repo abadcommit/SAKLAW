@@ -24,8 +24,8 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra
 
-import config as cfg
-from config import ModelParams, OptimizerParams
+import backend.model.config as cfg
+from backend.model.config import ModelParams, OptimizerParams
 
 
 # ------------------------------------------------------------ road matrix

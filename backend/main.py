@@ -15,8 +15,8 @@ MODEL_DIR = PROJECT_ROOT / "model"
 # `candidate_generation`, so add the model directory to Python's path.
 sys.path.insert(0, str(MODEL_DIR))
 
-from model.site_optimizer import recommend_sites
-from model.config import CandidateParams, OptimizerParams
+from backend.model.site_optimizer import recommend_sites
+from backend.model.config import CandidateParams, OptimizerParams
 
 app = FastAPI(title="SAKLAW API", version="1.0.0")
 

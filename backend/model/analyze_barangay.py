@@ -27,8 +27,8 @@ from rasterio.windows import Window
 from scipy.spatial import cKDTree
 from shapely.geometry import mapping
 
-import config as cfg
-from config import ModelParams
+import backend.model.config as cfg
+from backend.model.config import ModelParams
 
 
 # ============================================================ helpers
