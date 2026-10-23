@@ -3,7 +3,7 @@ import { useRef, useState, type PointerEvent, type ReactNode, type CSSProperties
 type Offset = { x: number; y: number };
 
 const INTERACTIVE = "button, input, textarea, select, a, label, [contenteditable], [data-no-drag]";
-const DRAG_THRESHOLD = 4; // px of movement before a press becomes a drag
+const DRAG_THRESHOLD = 4;
 
 function useDraggable(initial: Offset = { x: 0, y: 0 }) {
   const [offset, setOffset] = useState<Offset>(initial);
@@ -13,10 +13,9 @@ function useDraggable(initial: Offset = { x: 0, y: 0 }) {
 
   const onPointerDown = (e: PointerEvent<HTMLElement>) => {
     if (e.button !== 0) return;
-    if ((e.target as HTMLElement).closest(INTERACTIVE)) return; // let children handle it
+    if ((e.target as HTMLElement).closest(INTERACTIVE)) return;
     start.current = { px: e.clientX, py: e.clientY, ox: offset.x, oy: offset.y };
     active.current = false;
-    // note: no pointer capture yet, so clicks still reach children
   };
 
   const onPointerMove = (e: PointerEvent<HTMLElement>) => {
@@ -28,7 +27,7 @@ function useDraggable(initial: Offset = { x: 0, y: 0 }) {
     if (!active.current) {
       if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
       active.current = true;
-      e.currentTarget.setPointerCapture(e.pointerId); // capture only once it's really a drag
+      e.currentTarget.setPointerCapture(e.pointerId);
       setDragging(true);
     }
     setOffset({ x: s.ox + dx, y: s.oy + dy });
