@@ -43,12 +43,11 @@ function useDraggable(initial: Offset = { x: 0, y: 0 }) {
     setDragging(false);
   };
 
-  const style: CSSProperties = {
+   const style: CSSProperties = {
     transform: `translate(${offset.x}px, ${offset.y}px)`,
     cursor: dragging ? "grabbing" : "grab",
-    userSelect: dragging ? "none" : undefined, // only while dragging
-    position: "relative",
-    zIndex: dragging ? 10 : undefined,
+    userSelect: dragging ? "none" : undefined,
+    touchAction: "none"
   };
 
   return {
@@ -57,7 +56,26 @@ function useDraggable(initial: Offset = { x: 0, y: 0 }) {
   };
 }
 
-export function Draggable({ children }: { children: ReactNode }) {
+type DraggableProps = {
+  children: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+};
+
+export function Draggable({ children, className, style: userStyle }: DraggableProps) {
   const { handlers, style } = useDraggable();
-  return <div {...handlers} style={style}>{children}</div>;
+  return (
+    <div
+      {...handlers}
+      className={className}
+      style={{
+        position: "relative",
+        zIndex: 1100,       
+        ...userStyle,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
 }
