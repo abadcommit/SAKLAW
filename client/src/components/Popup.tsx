@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import styles from '../stylesheets/Popup.module.css'
 import { Minimize, Maximize } from 'lucide-react'
+import { Draggable } from '../hooks/useDraggable';
 
 interface Param {
   name: string;
@@ -59,10 +60,10 @@ export default function Popup() {
   }
 
   if (isOpen) {
-    return (<div className={styles['popup-wrapper-open']}>
+    return (<Draggable><div className={styles['popup-wrapper-open']}>
       <PopupHeader togglePopup={togglePopup} />
       <ParamSelect params={params} />
-    </div>)
+    </div></Draggable>)
   }
 
   return (<div className={styles['popup-wrapper-closed']}
