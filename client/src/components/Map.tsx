@@ -1,63 +1,68 @@
-// BicolMap.jsx
-import { useMemo } from 'react';
-import { MapContainer, TileLayer, Polygon, Tooltip, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
+// RegionMap.jsx
+import { useRef } from 'react';
+import { MapContainer, TileLayer, GeoJSON, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import barangays from '../../../model/data/region3_barangay_shape_with_population.json';
+import Papa from 'papaparse'
+import hospitalCoords from '../../../model/data/hospital_coords.csv'
+import { HospitalMarkers } from './HospitalMarkers';
 
-// Fix missing default marker icons under Vite/webpack
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
+const Region3Bounds = [[14.1, 119.5], [16.4, 122.3]];
 
-const BICOL_BOUNDS = [[11.7, 122.3], [14.4, 124.5]]; // [SW, NE]
+const baseStyle = { color: '#3388ff', weight: 1.5, fillColor: '#3388ff', fillOpacity: 0.15 };
+const hoverStyle = { color: '#ff6a00', weight: 3, fillColor: '#ff6a00', fillOpacity: 0.45 };
+const selectedStyle = { color: '#d00000', weight: 3, fillColor: '#d00000', fillOpacity: 0.5 };
 
-const SECTIONS = [
-  { id: 'a', name: 'Section A', coords: [[13.30, 123.40], [13.30, 123.80], [13.00, 123.80], [13.00, 123.40]] },
-  { id: 'b', name: 'Section B', coords: [[13.00, 123.60], [13.00, 124.00], [12.70, 124.00], [12.70, 123.60]] },
-];
+export default function RegionMap({ onSelect }) {
+  const geoRef = useRef(null);
+  const selected = useRef(null);
 
-const baseStyle = { color: '#3388ff', weight: 2, fillColor: '#3388ff', fillOpacity: 0.15 };
-const hoverStyle = { color: '#ff6a00', weight: 4, fillColor: '#ff6a00', fillOpacity: 0.45 };
+  const onEachFeature = (feature, layer) => {
+    const p = feature.properties;
 
-function Section({ name, coords }) {
-  const handlers = useMemo(() => ({
-    mouseover: (e) => {
-      e.target.setStyle(hoverStyle);
-      e.target.bringToFront();
-    },
-    mouseout: (e) => e.target.setStyle(baseStyle),
-  }), []);
+    layer.bindTooltip(`${p.ADM4_EN}, ${p.ADM3_EN}`, { sticky: false });
 
-  return (
-    <Polygon positions={coords} pathOptions={baseStyle} eventHandlers={handlers}>
-      <Tooltip sticky>{name}</Tooltip>
-    </Polygon>
-  );
-}
+    layer.on({
+      mouseover: (e) => {
+        if (e.target === selected.current) return;
+        e.target.setStyle(hoverStyle);
+        e.target.bringToFront();
+      },
+      mouseout: (e) => {
+        if (e.target !== selected.current) geoRef.current?.resetStyle(e.target);
+      },
+      click: (e) => {
+        if (selected.current) geoRef.current?.resetStyle(selected.current);
+        selected.current = e.target;
+        e.target.setStyle(selectedStyle);
+        e.target.bringToFront();
+      },
+    });
+  };
 
-export default function Map() {
   return (
     <MapContainer
-      center={[13.2, 123.6]}
+      center={[15.3, 120.7]}
       zoom={9}
       minZoom={8}
-      maxBounds={BICOL_BOUNDS}
+      maxBounds={Region3Bounds}
       maxBoundsViscosity={1.0}
-      style={{ height: '100dvh', width: '100100dvw' }}
+      style={{ height: '100dvh', width: '100dvw' }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="&copy; OpenStreetMap contributors"
       />
 
-      {SECTIONS.map((s) => <Section key={s.id} {...s} />)}
+      <GeoJSON
+        ref={geoRef}
+        data={barangays}
+        style={() => baseStyle}
+        onEachFeature={onEachFeature}
+      />
+
+      <HospitalMarkers />
     </MapContainer>
   );
 }
