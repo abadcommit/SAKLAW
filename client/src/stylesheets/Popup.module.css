@@ -3,15 +3,26 @@
   background-color: var(--primary-translucent);
   display: flex;
   flex-direction: column;
-  height: 50dvh;
+  height: min-content;
   width: 20dvw;
   border-radius: 16px;
   padding: 1.5rem;
+  position: absolute;
+  z-index: 1200;
+  margin: 2rem;
 }
 
 .popup-wrapper-closed {
   color: var(--light);
   background-color: var(--primary-translucent);
+  position: absolute;
+  z-index: 1200;
+  margin: 2rem;
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .popup-header-wrapper {
