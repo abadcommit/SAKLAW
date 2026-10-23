@@ -3,8 +3,6 @@ import { useRef } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import barangays from '../../../model/data/region3_barangay_shape_with_population.json';
-import Papa from 'papaparse'
-import hospitalCoords from '../../../model/data/hospital_coords.csv'
 import { HospitalMarkers } from './HospitalMarkers';
 
 
@@ -44,8 +42,8 @@ export default function RegionMap({ onSelect }) {
   return (
     <MapContainer
       center={[15.3, 120.7]}
-      zoom={9}
-      minZoom={8}
+      zoom={10}
+      minZoom={9}
       maxBounds={Region3Bounds}
       maxBoundsViscosity={1.0}
       style={{ height: '100dvh', width: '100dvw' }}

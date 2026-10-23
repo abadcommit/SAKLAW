@@ -1,9 +1,7 @@
+import { useEffect, useState } from 'react';
 import Papa from 'papaparse';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import hospitalCoords from '../../../model/data/hospital_coords.csv?raw';
-
-
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -15,26 +13,27 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-
-const { data, errors } = Papa.parse(hospitalCoords, {
-  header: true,
-  skipEmptyLines: true,
-
-  dynamicTyping: (col) => col === 'latitude' || col === 'longitude',
-});
-if (errors.length) console.warn('CSV parse issues:', errors);
-
-
-const hospitals = data.filter(
-  (h) => Number.isFinite(h.latitude) && Number.isFinite(h.longitude)
-);
-
 export function HospitalMarkers() {
+  const [hospitals, setHospitals] = useState([]);
+
+  useEffect(() => {
+    fetch('/data/hospital_coords.csv')
+      .then((r) => r.text())
+      .then((text) => {
+        const { data, errors } = Papa.parse(text, {
+          header: true,
+          skipEmptyLines: true,
+          dynamicTyping: (col) => col === 'latitude' || col === 'longitude',
+        });
+        if (errors.length) console.warn('CSV parse issues:', errors);
+        setHospitals(
+          data.filter((h) => Number.isFinite(h.latitude) && Number.isFinite(h.longitude))
+        );
+      });
+  }, []);
+
   return hospitals.map((h) => (
-    <Marker
-      key={h['Health Facility Code']}
-      position={[h.latitude, h.longitude]}
-    >
+    <Marker key={h['Health Facility Code']} position={[h.latitude, h.longitude]}>
       <Popup>
         <strong>{h['Facility Name']}</strong>
         <br />
