@@ -1,115 +1,238 @@
-import { useEffect, useRef, useState } from "react";
+
+import { useEffect, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
   GeoJSON,
   ZoomControl,
-  CircleMarker,
+  Marker,
   Tooltip,
   Popup,
-  useMap, 
+  useMap,
+  ImageOverlay,
 } from "react-leaflet";
 import L from "leaflet";
 import type { FeatureCollection } from "geojson";
 import "leaflet/dist/leaflet.css";
 import barangays from "../../../model/data/region3_barangay_shape_with_population.json";
 import { HospitalMarkers } from "./HospitalMarkers";
-import { useGetCandidates, type CandidateSite } from "../hooks/useGetCandidates.tsx"; // adjust path
+import type { CandidateSite } from "../hooks/useGetCandidates";
 
 const Region3Bounds: L.LatLngBoundsExpression = [
   [14.1, 119.5],
   [16.4, 122.3],
 ];
 
-const baseStyle = { color: "#3388ff", weight: 1.5, fillColor: "#3388ff", fillOpacity: 0.15 };
-const hoverStyle = { color: "#ff6a00", weight: 3, fillColor: "#ff6a00", fillOpacity: 0.45 };
-const selectedStyle = { color: "#d00000", weight: 3, fillColor: "#d00000", fillOpacity: 0.5 };
+const baseStyle = {
+  color: "#2878c8",
+  weight: 0.85,
+  opacity: 0.7,
+  fillColor: "#3388ff",
+  fillOpacity: 0.04,
+};
+
+const hoverStyle = {
+  color: "#ff8c42",
+  weight: 2,
+  opacity: 1,
+  fillColor: "#ff8c42",
+  fillOpacity: 0.2,
+};
+
+const selectedStyle = {
+  color: "#d00000",
+  weight: 2,
+  opacity: 1,
+  fillColor: "#d00000",
+  fillOpacity: 0.25,
+};
+
+const candidateIcon = L.divIcon({
+  className: "saklaw-candidate-icon",
+  html: `
+    <div style="
+      width: 26px;
+      height: 26px;
+      background: #facc15;
+      border: 3px solid white;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      box-sizing: border-box;
+      position: relative;
+    ">
+      <div style="
+        width: 7px;
+        height: 7px;
+        background: #785b00;
+        border-radius: 50%;
+        position: absolute;
+        top: 7px;
+        left: 7px;
+      "></div>
+    </div>
+  `,
+  iconSize: [26, 34],
+  iconAnchor: [13, 32],
+  popupAnchor: [0, -30],
+});
 
 function FitToSites({ sites }: { sites: CandidateSite[] }) {
   const map = useMap();
+  const previousSites = useRef("");
+
   useEffect(() => {
     if (!sites.length) return;
-    const bounds = L.latLngBounds(sites.map((s) => [s.latitude, s.longitude] as L.LatLngTuple));
-    map.fitBounds(bounds, { padding: [80, 80], maxZoom: 13 });
+
+    const siteKey = sites
+      .map((site) => `${site.latitude},${site.longitude}`)
+      .join("|");
+
+    if (siteKey === previousSites.current) return;
+    previousSites.current = siteKey;
+
+    const bounds = L.latLngBounds(
+      sites.map(
+        (site) => [site.latitude, site.longitude] as L.LatLngTuple
+      )
+    );
+
+    if (bounds.isValid()) {
+      map.fitBounds(bounds, {
+        padding: [80, 80],
+        maxZoom: 13,
+      });
+    }
   }, [sites, map]);
+
   return null;
 }
 
 function CandidateMarkers({ sites }: { sites: CandidateSite[] }) {
   return (
     <>
-      {sites.map((s) => (
-        <CircleMarker
-          key={String(s.candidate_id)}
-          center={[s.latitude, s.longitude]}
-          radius={11}
-          pathOptions={{ color: "#fff", weight: 3, fillColor: "#2a9d8f", fillOpacity: 1 }}
+      {sites.map((site, index) => (
+        <Marker
+          key={`${site.candidate_id}-${site.latitude}-${site.longitude}`}
+          position={[site.latitude, site.longitude]}
+          icon={candidateIcon}
+          zIndexOffset={1000}
         >
           <Tooltip direction="top" offset={[0, -8]}>
-            {s.selection_order != null ? `#${s.selection_order} · ` : ""}
-            New site {String(s.candidate_id)}
+            {site.selection_order != null
+              ? `#${site.selection_order} · `
+              : `#${index + 1} · `}
+            Proposed site {String(site.candidate_id)}
           </Tooltip>
+
           <Popup>
             <strong>Proposed hospital site</strong>
             <br />
-            ID: {String(s.candidate_id)}
+            ID: {String(site.candidate_id)}
             <br />
-            {s.latitude.toFixed(5)}, {s.longitude.toFixed(5)}
+            Latitude: {site.latitude.toFixed(5)}
+            <br />
+            Longitude: {site.longitude.toFixed(5)}
           </Popup>
-        </CircleMarker>
+        </Marker>
       ))}
     </>
   );
 }
 
-export default function RegionMap() {
+interface MapProps {
+  sites: CandidateSite[];
+  showHospitals?: boolean;
+  showPopulation?: boolean;
+}
+
+export default function RegionMap({
+  sites,
+  showHospitals = true,
+  showPopulation = true,
+}: MapProps) {
   const geoRef = useRef<L.GeoJSON>(null);
   const selected = useRef<L.Path | null>(null);
 
-  const { data, loading, error, getCandidates } = useGetCandidates();
-  const [rank, setRank] = useState(1);
+  const onEachFeature = (
+    feature: GeoJSON.Feature,
+    layer: L.Layer
+  ) => {
+    const properties = feature.properties;
 
-  const combination = data?.combinations.find((c) => c.rank === rank) ?? data?.combinations[0];
-  const sites = combination?.sites ?? [];
-
-  const onEachFeature = (feature: any, layer: L.Layer) => {
-    const p = feature.properties;
-
-    layer.bindTooltip(`${p.ADM4_EN}, ${p.ADM3_EN}`, { sticky: false });
+    if (properties) {
+      layer.bindTooltip(
+        `${properties.ADM4_EN ?? "Unknown barangay"}, ${
+          properties.ADM3_EN ?? "Unknown municipality"
+        }`,
+        { sticky: false }
+      );
+    }
 
     layer.on({
-      mouseover: (e: L.LeafletMouseEvent) => {
-        if (e.target === selected.current) return;
-        e.target.setStyle(hoverStyle);
-        e.target.bringToFront();
+      mouseover: (event: L.LeafletMouseEvent) => {
+        if (event.target === selected.current) return;
+
+        event.target.setStyle(hoverStyle);
+        event.target.bringToFront();
       },
-      mouseout: (e: L.LeafletMouseEvent) => {
-        if (e.target !== selected.current) geoRef.current?.resetStyle(e.target);
+
+      mouseout: (event: L.LeafletMouseEvent) => {
+        if (event.target !== selected.current) {
+          geoRef.current?.resetStyle(event.target);
+        }
       },
-      click: (e: L.LeafletMouseEvent) => {
-        if (selected.current) geoRef.current?.resetStyle(selected.current);
-        selected.current = e.target;
-        e.target.setStyle(selectedStyle);
-        e.target.bringToFront();
+
+      click: (event: L.LeafletMouseEvent) => {
+        if (selected.current) {
+          geoRef.current?.resetStyle(selected.current);
+        }
+
+        selected.current = event.target;
+        event.target.setStyle(selectedStyle);
+        event.target.bringToFront();
       },
     });
   };
 
   return (
-    <div style={{ position: "relative", width: "100dvw", height: "100dvh" }}>
+    <div
+      style={{
+        position: "relative",
+        width: "100dvw",
+        height: "100dvh",
+      }}
+    >
       <MapContainer
         center={[15.3, 120.7]}
         zoom={10}
         minZoom={9}
         maxBounds={Region3Bounds}
-        maxBoundsViscosity={1.0}
-        style={{ position: "absolute", inset: 0, zIndex: 0 }}
+        maxBoundsViscosity={1}
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+        }}
         zoomControl={false}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
+
+        {showPopulation && (
+          <ImageOverlay
+            url="/population-region3.png"
+            bounds={[
+              [14.1, 119.5],
+              [16.4, 122.3],
+            ]}
+            opacity={0.55}
+            pane="overlayPane"
+            zIndex={1}
+          />
+        )}
 
         <GeoJSON
           ref={geoRef}
@@ -118,43 +241,12 @@ export default function RegionMap() {
           onEachFeature={onEachFeature}
         />
 
-        <HospitalMarkers />
+        {showHospitals && <HospitalMarkers />}
+
         <CandidateMarkers sites={sites} />
         <FitToSites sites={sites} />
         <ZoomControl position="topright" />
       </MapContainer>
-
-      {/* Controls live outside MapContainer so clicks don't reach the map */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 24,
-          left: 24,
-          zIndex: 1100,
-          display: "flex",
-          flexDirection: "column",
-          gap: 8,
-        }}
-      >
-        <button onClick={() => getCandidates()} disabled={loading}>
-          {loading ? "Finding sites…" : "Suggest new hospital sites"}
-        </button>
-
-        {data && data.combinations.length > 1 && (
-          <select
-            value={combination?.rank}
-            onChange={(e) => setRank(Number(e.target.value))}
-          >
-            {data.combinations.map((c) => (
-              <option key={c.rank} value={c.rank}>
-                Option {c.rank}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {error && <div style={{ color: "#e63946" }}>{error}</div>}
-      </div>
     </div>
   );
 }

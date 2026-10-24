@@ -9,3 +9,4 @@ networkx
 fastapi
 uvicorn[standard]
 pydantic
+pillow

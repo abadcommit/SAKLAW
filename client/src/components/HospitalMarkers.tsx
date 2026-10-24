@@ -1,46 +1,73 @@
-import { useEffect, useState } from 'react';
-import Papa from 'papaparse';
-import { Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
+import { useEffect, useState } from "react";
+import Papa from "papaparse";
+import { CircleMarker, Popup } from "react-leaflet";
+
+type Hospital = {
+  "Health Facility Code": string;
+  "Facility Name": string;
+  "Barangay Name": string;
+  "City/Municipality Name": string;
+  "Province Name": string;
+  latitude: number;
+  longitude: number;
+};
 
 export function HospitalMarkers() {
-  const [hospitals, setHospitals] = useState([]);
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
 
   useEffect(() => {
-    fetch('/data/hospital_coords.csv')
-      .then((r) => r.text())
+    fetch("/data/hospital_coords.csv")
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to load hospitals");
+        return response.text();
+      })
       .then((text) => {
-        const { data, errors } = Papa.parse(text, {
+        const { data, errors } = Papa.parse<Hospital>(text, {
           header: true,
           skipEmptyLines: true,
-          dynamicTyping: (col) => col === 'latitude' || col === 'longitude',
+          dynamicTyping: (column) =>
+            column === "latitude" || column === "longitude",
         });
-        if (errors.length) console.warn('CSV parse issues:', errors);
+
+        if (errors.length) console.warn("CSV parse issues:", errors);
+
         setHospitals(
-          data.filter((h) => Number.isFinite(h.latitude) && Number.isFinite(h.longitude))
+          data.filter(
+            (hospital) =>
+              Number.isFinite(hospital.latitude) &&
+              Number.isFinite(hospital.longitude)
+          )
         );
-      });
+      })
+      .catch((error) => console.error(error));
   }, []);
 
-  return hospitals.map((h) => (
-    <Marker key={h['Health Facility Code']} position={[h.latitude, h.longitude]}>
-      <Popup>
-        <strong>{h['Facility Name']}</strong>
-        <br />
-        {h['Barangay Name']}, {h['City/Municipality Name']}
-        <br />
-        {h['Province Name']}
-      </Popup>
-    </Marker>
-  ));
+  return (
+    <>
+      {hospitals.map((hospital) => (
+        <CircleMarker
+          key={hospital["Health Facility Code"]}
+          center={[hospital.latitude, hospital.longitude]}
+          radius={6}
+          pathOptions={{
+            color: "#ffffff",
+            weight: 1.5,
+            opacity: 1,
+            fillColor: "#28658a",
+            fillOpacity: 1,
+          }}
+        >
+          <Popup>
+            <strong>{hospital["Facility Name"]}</strong>
+            <br />
+            {hospital["Barangay Name"]},{" "}
+            {hospital["City/Municipality Name"]}
+            <br />
+            {hospital["Province Name"]}
+          </Popup>
+        </CircleMarker>
+      ))}
+    </>
+  );
 }

@@ -21,7 +21,7 @@ OUTPUT_DIR = ROOT / "outputs"
 
 GRAPH_FILE = DATA_DIR / "region3_roads.graphml"
 HOSPITAL_FILE = DATA_DIR / "hospital_coords.csv"
-BARANGAY_FILE = DATA_DIR / "region3_barangay_shape_with_population.geojson"
+BARANGAY_FILE = DATA_DIR / "region3_barangay_shape_with_population.json"
 POPULATION_RASTER = DATA_DIR / "population_calibrated_region3.tif"
 
 OUTPUT_CSV = DATA_DIR / "barangay_accessibility.csv"
