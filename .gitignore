@@ -1,0 +1,25 @@
+# Python virtual environments
+.venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Model-generated cache and outputs
+model/cache/
+model/outputs/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Too large files
+model/data/region3_roads.graphml

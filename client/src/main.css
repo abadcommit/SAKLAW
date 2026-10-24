@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+:root {
+  --main-font: 'Atkinson Hyperlegible';
+  --primary: hsl(222, 47%, 11%);
+  --primary-translucent: hsl(222, 47%, 11%, 0.9);
+  --light: hsl(0, 100%, 100%);
+  --text-muted: hsl(0, 0%, 73%)
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0px;
+  margin: 0px;
+  font-family: var(--main-font)
+}

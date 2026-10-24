@@ -1,0 +1,12 @@
+rasterio
+pandas
+numpy
+geopandas
+pyroj
+scipy
+shapely
+networkx
+fastapi
+uvicorn[standard]
+pydantic
+pillow
